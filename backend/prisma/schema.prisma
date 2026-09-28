@@ -1,0 +1,64 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+model Product {
+  id               String   @id @default(uuid())
+  sku              String   @unique
+  name             String
+  category         String
+  price            Float
+  stock            Int
+  reorderThreshold Int
+  demandVelocity   Float    @default(0)
+  status           String   @default("ACTIVE") // ACTIVE | DISCONTINUED | OUT_OF_STOCK
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  suggestions Suggestion[]
+  priceHistory PriceHistory[]
+}
+
+model Suggestion {
+  id              String   @id @default(uuid())
+  productId       String
+  type            String   // PRICING | REORDER
+  status          String   @default("PENDING") // PENDING | ACCEPTED | REJECTED
+  triggerReason   String
+  source          String   @default("AI") // AI | RULE_BASED
+
+  // Pricing fields
+  currentPrice    Float?
+  recommendedPrice Float?
+  direction       String?  // INCREASE | DECREASE | HOLD
+  pricingConfidence Float?
+  pricingReasoning String?
+
+  // Reorder fields
+  currentStock    Int?
+  recommendedQty  Int?
+  reorderConfidence Float?
+  reorderReasoning String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model PriceHistory {
+  id        String   @id @default(uuid())
+  productId String
+  oldPrice  Float
+  newPrice  Float
+  reason    String
+  changedAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
