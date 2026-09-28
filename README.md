@@ -1,532 +1,347 @@
-# ShopStream
+<div align="center">
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+</div>
 
-ShopStream is an AI-powered inventory and pricing management system that helps retailers optimize their merchandise strategies through intelligent suggestions for pricing adjustments and reorder quantities.
+<h1 align="center">🛍️ ShopStream</h1>
 
-## Table of Contents
+<p align="center">
+  <strong>AI-Powered Inventory & Pricing Management System</strong>
+</p>
 
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Features](#features)
-- [API Endpoints](#api-endpoints)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Backend Setup](#backend-setup)
-  - [Frontend Setup](#frontend-setup)
-- [Environment Variables](#environment-variables)
-- [Database Schema](#database-schema)
-- [AI Advisor System](#ai-advisor-system)
-- [Development](#development)
+<p align="center">
+  <img src="https://img.shields.io/github/license/yourusername/shopstream" alt="License" />
+  <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version" />
+  <img src="https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-lightgrey" alt="Platforms" />
+</p>
 
-## Architecture
+---
 
-ShopStream follows a modern microservices-inspired architecture with a monolithic backend:
+## 🌟 What is ShopStream?
 
-```
-┌─────────────────┐    ┌──────────────────┐
-│   Frontend      │    │   Backend API    │
-│   (React/Vite)  │◄──►│   (Node.js/      │
-└─────────────────┘    │   Express)       │
-                       └─────────▲────────┘
-                                 │
-                       ┌─────────▼────────┐
-                       │    Database      │
-                       │  (PostgreSQL)    │
-                       └──────────────────┘
-```
+ShopStream is an intelligent commerce platform that helps retailers optimize their inventory and pricing strategies using artificial intelligence. Unlike traditional inventory management systems, ShopStream doesn't just track stock—it actively suggests smart actions to maximize profits and minimize waste.
 
-### Key Components
+### 🔮 AI-Powered Intelligence
+- **Smart Pricing**: Automatically suggests optimal prices based on demand patterns
+- **Inventory Forecasting**: Predicts when to reorder stock before running out
+- **Trend Analysis**: Identifies sales patterns and seasonal fluctuations
+- **Competitive Edge**: Makes data-driven decisions faster than manual analysis
 
-1. **Frontend**: React application with Vite for fast development
-2. **Backend API**: Node.js/Express server with RESTful endpoints
-3. **Database**: PostgreSQL with Prisma ORM for data persistence
-4. **AI Advisor**: Intelligent recommendation engine with fallback mechanisms
-5. **Documentation**: Swagger/OpenAPI for API documentation
+### 🎯 Key Features
 
-## Tech Stack
+| Feature | Description |
+|--------|-------------|
+| **🎯 Real-time Inventory Tracking** | Monitor stock levels across all products instantly |
+| **🤖 AI Advisor** | Get intelligent suggestions for pricing and reordering |
+| **📈 Demand Analytics** | Understand which products are trending up or down |
+| **📊 Interactive Dashboard** | Visualize key metrics at a glance |
+| **⚡ One-click Actions** | Implement AI suggestions with a single click |
+| **📚 Full History** | Track all price changes and decisions |
 
-### Backend
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: PostgreSQL
-- **ORM**: Prisma
-- **Validation**: Zod
-- **Documentation**: Swagger UI / OpenAPI
-- **AI Services**: 
-  - Primary: Google Gemini API
-  - Secondary: LiteLLM
-  - Fallback: Rule-based system
+---
 
-### Frontend
-- **Framework**: React 18+
-- **Build Tool**: Vite
-- **Routing**: React Router
-- **HTTP Client**: Axios
-- **Styling**: CSS Modules
 
-### Infrastructure
-- **Containerization**: Docker (planned)
-- **Deployment**: Platform-independent
-
-## Features
-
-### Core Functionality
-- Real-time inventory tracking
-- Automated pricing suggestions
-
-## API Endpoints
-
-### Products
-
-#### GET `/api/products`
-List all products with optional filtering
-- Query Parameters:
-  - `category` (string): Filter by category
-  - `status` (string): Filter by status [ACTIVE, DISCONTINUED, OUT_OF_STOCK]
-
-#### GET `/api/products/{id}`
-Get a specific product with its pending suggestions and price history
-
-#### POST `/api/products`
-Create a new product
-- Body: Product object (see schema)
-
-#### PATCH `/api/products/{id}`
-Update product fields
-- Body: Partial product object
-
-#### PATCH `/api/products/{id}/stock`
-Update stock level
-- Body: `{ stock: integer }`
-
-#### POST `/api/products/{id}/advise`
-Trigger AI advisor for a product
-- Body: `{ triggerReason: string }`
-
-#### POST `/api/products/{id}/orders`
-Simulate a sale (decreases stock, affects demand velocity)
-- Body: `{ quantity: integer }` (default: 1)
-
-#### POST `/api/products/{id}/suggest-pricing`
-Generate on-demand pricing suggestion
-
-#### POST `/api/products/{id}/suggest-reorder`
-Generate on-demand reorder suggestion
-
-### Suggestions
-
-#### GET `/api/suggestions`
-List all suggestions with optional filtering
-- Query Parameters:
-  - `status` (string): Filter by status [PENDING, ACCEPTED, REJECTED]
-  - `type` (string): Filter by type [PRICING, REORDER]
-  - `productId` (string): Filter by product ID
-
-#### GET `/api/suggestions/{id}`
-Get a specific suggestion
-
-#### POST `/api/suggestions/{id}/accept`
-Accept and apply a suggestion
-
-#### POST `/api/suggestions/{id}/reject`
-Reject a suggestion
-
-#### GET `/api/suggestions/stats/summary`
-Get statistics on suggestions
-
-## Getting Started
+## 🛠️ Detailed Installation
 
 ### Prerequisites
+Before you begin, make sure you have these installed:
+- **Node.js** (version 18 or higher) [[Download here](https://nodejs.org/)]
+- **npm** (comes with Node.js)
+- **Git** [[Download here](https://git-scm.com/)]
+- **Docker** (optional but recommended) [[Download here](https://www.docker.com/products/docker-desktop)]
 
-- Node.js >= 18.x
-- npm or yarn
-- Git
-- Docker (recommended for database, but optional)
+### Step-by-Step Setup
 
-### Quick Start (Recommended)
-
-Use the provided startup scripts to launch the entire system with one command:
-
-**Windows:**
+#### 1. Clone the Repository
 ```bash
-start-system.bat
+git clone https://github.com/yourusername/shopstream.git
+cd shopstream
 ```
 
-**Mac/Linux:**
+#### 2. Choose Your Startup Method
+
+**Option A: Automated Startup (Recommended)**
 ```bash
+# For Windows
+start-system.bat
+
+# For Mac/Linux
 chmod +x start-system.sh
 ./start-system.sh
+
+# Cross-platform
+
+## 🧠 How ShopStream Works
+
+### The Intelligent Flow
+
+```mermaid
+graph LR
+    A[Products] --> B[AIPoweredAdvisor]
+    C[SalesData] --> B
+    D[InventoryLevels] --> B
+    B --> E[SuggestionGeneration]
+    E --> F[PricingRecommendations]
+    E --> G[ReorderSuggestions]
+    F --> H[UserReview]
+    G --> H
+    H --> I[Accept/Reject]
+    I --> J[ApplyChanges]
 ```
 
-**Cross-platform (requires Node.js):**
-```bash
-npm start
+### Core Components
+
+1. **🛒 Product Management**
+   - Add, edit, and organize your product catalog
+   - Track stock levels, prices, and categories
+   - Monitor demand velocity in real-time
+
+2. **🤖 AI Advisory Engine**
+   - Monitors inventory signals 24/7
+   - Generates contextual suggestions
+   - Provides confidence scores for decisions
+
+3. **💡 Smart Suggestions**
+   - **Pricing**: Increase/decrease prices based on demand
+   - **Reordering**: Suggest optimal order quantities
+   - **Risk Management**: Protect against stockouts and overstocks
+
+4. **📊 Analytics Dashboard**
+   - Visualize key performance indicators
+   - Identify trending and declining products
+   - Track inventory value and turnover
+
+---
+
+## 🎮 Using ShopStream
+
+### First-Time Experience
+
+1. **Dashboard Overview**
+   - See your overall inventory health
+   - Identify low-stock warnings
+   - Review pending AI suggestions
+
+2. **Adding Products**
+   ```
+   Product Details:
+   - SKU: Unique identifier (e.g., "SHIRT-BLK-L")
+   - Name: Human-readable name
+   - Category: Product grouping
+   - Price: Current selling price
+   - Cost Price: Purchase cost (for margin calculation)
+   - Stock: Current inventory count
+   - Reorder Threshold: When to get alerted
+   ```
+
+3. **Working with AI Suggestions**
+   - **Pending Tab**: Review all AI recommendations
+   - **Details**: Read the AI's reasoning
+   - **Accept**: Implement the suggestion immediately
+   - **Reject**: Decline without changes
+   - **Manual Trigger**: Ask AI for fresh advice anytime
+
+### Advanced Features
+
+#### Simulating Sales
+Test how the system responds to different scenarios:
+
+## 🏗️ Technical Architecture
+
+### System Overview
+```
+┌─────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│   Frontend      │    │   Backend API    │    │   PostgreSQL     │
+│   React/Vite    │◄──►│   Node/Express   │◄──►│   Database       │
+└─────────────────┘    └──────────────────┘    └──────────────────┘
+         ▲                      ▲                      
+         │                ┌─────┴─────┐                
+         │                │  AI Layer │                
+         │                │ (Gemini/  │                
+         │                │ LiteLLM)  │                
+         │                └───────────┘                
+         │                                              
+┌─────────────────┐                                    
+│   User Browser  │                                    
+└─────────────────┘                                    
 ```
 
-### Manual Setup
+### Technology Stack
 
-If you prefer to start services manually:
+**Frontend**
+- React 18+ with Hooks
+- Vite for blazing-fast development
+- Modern CSS with responsive design
+- Axios for API communication
 
-#### Backend Setup
+**Backend**
+- Node.js with Express framework
+- PostgreSQL with Prisma ORM
+- RESTful API architecture
+- Swagger/OpenAPI documentation
+- Zod validation for data integrity
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+**AI Intelligence**
+- Primary: Google Gemini API
+- Secondary: LiteLLM integration
+- Fallback: Rule-based algorithm
+- Contextual prompting system
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Database Schema
 
-3. Set up environment variables:
-   ```bash
-   cp env.example .env
-   # Edit .env with your configuration
-   ```
-
-4. Run database migrations:
-   ```bash
-   npm run db:migrate
-   ```
-
-5. Seed the database (optional):
-   ```bash
-   npm run db:seed
-   ```
-
-6. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-#### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables:
-   ```bash
-   # The postinstall script will copy .env.example to .env automatically
-   # Edit .env with your configuration if needed
-   ```
-
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-### Database Setup
-
-The application requires PostgreSQL. You can:
-
-1. **Use Docker (recommended)**: The startup scripts will automatically start a PostgreSQL container
-2. **Use existing PostgreSQL installation**: Configure the DATABASE_URL in backend/.env
-3. **Use cloud PostgreSQL**: Configure the DATABASE_URL in backend/.env
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js >= 18.x
-- PostgreSQL >= 13.x
-- npm or yarn
-- Git
-
-### Backend Setup
-
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables:
-   ```bash
-   cp env.example .env
-   # Edit .env with your configuration
-   ```
-
-4. Run database migrations:
-   ```bash
-   npm run db:migrate
-   ```
-
-5. Seed the database (optional):
-   ```bash
-
-## Environment Variables
-
-### Backend (.env)
-
-```env
-# Server configuration
-PORT=4000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/shopstream
-
-# AI Configuration
-LITELLM_BASE_URL=https://litellm-qc.zycus.net/v1
-LITELLM_API_KEY=your_api_key_here
-LITELLM_MODEL=qwen-cursor
-LITELLM_TIMEOUT_MS=15000
-LITELLM_PRODUCT_HEADER=PC1
-
-# AI Configuration (Primary)
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Business Rules
-
-## Database Schema
-
-The database consists of three main models:
-
-### Product
-```prisma
-model Product {
-  id               String   @id @default(uuid())
-  sku              String   @unique
-  name             String
-  category         String
-  price            Float
-  costPrice        Float?   // Sprint 2: Margin floors
-  stock            Int
-  reorderThreshold Int
-  demandVelocity   Float    @default(0)
-  status           String   @default("ACTIVE") // ACTIVE | DISCONTINUED | OUT_OF_STOCK
-  supplierId       String?  // Sprint 2: Supplier catalogs
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  suggestions  Suggestion[]
-  priceHistory PriceHistory[]
-}
+**Products Table**
 ```
+id (UUID)           - Unique identifier
+sku (String)        - Stock Keeping Unit
+name (String)       - Product name
+category (String)   - Product category
+price (Float)       - Selling price
+costPrice (Float?)  - Purchase cost (optional)
+stock (Integer)     - Current inventory
+demandVelocity (Float) - Sales rate per day
+status (Enum)       - ACTIVE/DISCONTINUED/OUT_OF_STOCK
 
-### Suggestion
-```prisma
-model Suggestion {
-  id              String   @id @default(uuid())
-  productId       String
-  type            String   // PRICING | REORDER
-  status          String   @default("PENDING") // PENDING | ACCEPTED | REJECTED
-  triggerReason   String
-  source          String   @default("AI") // AI | RULE_BASED
+## 🤝 Contributing
 
-  // Pricing fields
-  currentPrice        Float?
-  recommendedPrice    Float?
-  direction           String?  // INCREASE | DECREASE | HOLD
-  pricingConfidence   Float?
-  pricingReasoning    String?
-
-  // Reorder fields
-  currentStock        Int?
-  recommendedQty      Int?
-  reorderConfidence   Float?
-  reorderReasoning    String?
-
-
-## AI Advisor System
-
-The AI Advisor is the core intelligence of ShopStream, providing context-aware recommendations for pricing and inventory management.
-
-### Architecture
-
-The system follows a three-tier fallback approach:
-1. **Primary**: Google Gemini API
-2. **Secondary**: LiteLLM API
-3. **Fallback**: Rule-based system
-
-### Triggers
-
-The advisor responds to three types of triggers:
-1. **INVENTORY_LOW**: Stock drops below reorder threshold
-2. **DEMAND_SPIKE**: Unusually high demand velocity
-3. **MANUAL**: User-initiated request
-
-### Recommendation Process
-
-1. Event detection (inventory low, demand spike)
-2. Context compilation (product data, category trends)
-3. AI analysis (Gemini → LiteLLM → Rules)
-4. Suggestion creation in database
-5. User review and action
-
-### Response Format
-
-AI responses follow a standardized JSON format:
-
-## Development
-
-### Project Structure
-
-```
-shopstream/
-├── backend/
-│   ├── prisma/
-│   │   └── schema.prisma
-│   ├── src/
-│   │   ├── config/
-│   │   ├── middleware/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── validators/
-│   │   └── index.js
-│   ├── env.example
-│   └── package.json
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── api.js
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── .env.example
-│   └── package.json
-└── README.md
-```
-
-### Available Scripts
-
-#### Backend
-- `npm run dev`: Start development server with file watching
-- `npm start`: Start production server
-- `npm run db:migrate`: Run database migrations
-- `npm run db:seed`: Seed the database
-- `npm run db:reset`: Reset the database
-- `npm run db:studio`: Open Prisma Studio
-
-#### Frontend
-- `npm run dev`: Start development server
-- `npm run build`: Build for production
-- `npm run preview`: Preview production build
-- `npm run lint`: Run linter
-
-### Contributing
+We love contributions! Here's how you can help:
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a pull request
+5. Open a Pull Request
 
-## License
+### Development Setup
+```bash
+# Install root dependencies
+npm install
+
+# Backend development
+cd backend
+npm run dev
+
+# Frontend development
+cd frontend
+npm run dev
+
+# Database utilities
+npm run db:migrate  # Run migrations
+npm run db:seed     # Seed sample data
+npm run db:studio   # Open Prisma Studio
+```
+
+---
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```json
-{
-  "pricing": {
-    "recommendedPrice": 29.99,
-    "direction": "INCREASE",
-    "confidence": 0.85,
-    "reasoning": "High demand velocity suggests opportunity for yield maximization"
-  },
-  "reorder": {
-    "recommendedQty": 150,
-    "confidence": 0.92,
-    "reasoning": "Current stock will deplete in 2 days at current velocity"
-  }
-}
-```
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
+---
+
+## 🙋‍♀️ Support
+
+Having trouble? We're here to help!
+
+- **Documentation**: Check our [Wiki](../../wiki)
+- **Issues**: [Open an issue](../../issues/new)
+- **Questions**: Email support@shopstream.com
+- **Community**: Join our [Discord](https://discord.gg/shopstream)
+
+---
+
+<p align="center">
+  Made with ❤️ for smarter retail management
+</p>
 ```
 
-### PriceHistory
-```prisma
-model PriceHistory {
-  id        String   @id @default(uuid())
-  productId String
-  oldPrice  Float
-  newPrice  Float
-  reason    String
-  changedAt DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
+**Suggestions Table**
 ```
-DEMAND_SPIKE_MULTIPLIER=2
-LOW_STOCK_PRICE_BUMP=0.10
-DEMAND_SPIKE_PRICE_BUMP=0.05
+id (UUID)           - Unique identifier
+productId (FK)      - Related product
+type (Enum)         - PRICING/REORDER
+status (Enum)       - PENDING/ACCEPTED/REJECTED
+recommendations (JSON) - AI-generated suggestions
+confidence (Float)  - Confidence score (0.0-1.0)
 ```
 
-### Frontend (.env)
+---
 
-```env
-# API Configuration
-VITE_API_URL=http://localhost:4000
+## 📚 API Documentation
+
+Complete API documentation is available at: http://localhost:4000/api/docs
+
+### Key Endpoints
+
+#### Product Management
+- `GET /api/products` - List all products
+- `POST /api/products` - Create new product
+- `GET /api/products/:id` - Get product details
+- `PATCH /api/products/:id` - Update product
+- `PATCH /api/products/:id/stock` - Update stock level
+
+#### AI Interaction
+- `POST /api/products/:id/advise` - Trigger AI advisory
+- `POST /api/products/:id/suggest-pricing` - Get pricing suggestion
+- `POST /api/products/:id/suggest-reorder` - Get reorder suggestion
+
+#### Suggestions System
+- `GET /api/suggestions` - List all suggestions
+- `POST /api/suggestions/:id/accept` - Accept suggestion
+- `POST /api/suggestions/:id/reject` - Reject suggestion
+- Click "Simulate Sale" on any product
+- Watch demand velocity increase
+- See AI suggestions appear for trending products
+
+#### Demand Spike Detection
+When products sell faster than usual:
+- System automatically triggers AI analysis
+- Gets suggestions to raise prices or increase orders
+- Helps capitalize on popularity
+
+#### Low Stock Protection
+When inventory runs low:
+- Immediate alert generation
+- Suggestion to increase prices temporarily
+- Recommendation for large reorder quantities
+npm start
 ```
-   npm run db:seed
-   ```
 
-6. Start the development server:
-   ```bash
-   npm run dev
-   ```
+**Option B: Manual Setup**
+```bash
+# Terminal 1: Start Backend
+cd backend
+npm install
+npm run dev
 
-### Frontend Setup
+# Terminal 2: Start Frontend
+cd frontend
+npm install
+npm run dev
+```
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
+#### 3. Access the Application
+Once everything is running, open your browser and navigate to:
+- **Application**: http://localhost:5173
+- **API Documentation**: http://localhost:4000/api/docs
+- **Backend API**: http://localhost:4000
+## 🚀 Quick Start
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+Ready to dive in? Get ShopStream running in minutes!
 
-3. Set up environment variables:
-   ```bash
-   # The postinstall script will copy .env.example to .env automatically
-   # Edit .env with your configuration if needed
-   ```
+### One-Command Startup (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/shopstream.git
+cd shopstream
 
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
+# Start everything with one command!
+npm start
+```
 
-### Health
-
-#### GET `/health`
-Check API health status
-
-### Documentation
-
-#### GET `/api/docs`
-Swagger UI documentation
-- Smart reorder recommendations
-- Demand velocity monitoring
-- Category-based analytics
-
-### AI-Powered Recommendations
-- Context-aware pricing adjustments
-- Demand spike detection and response
-- Low stock inventory protection
-- Multi-layer fallback system (AI → LiteLLM → Rules)
-
-### User Interface
-- Dashboard with KPIs
-- Product catalog management
-- Interactive suggestion review
-- Visual analytics
+That's it! The system will automatically:
+1. Set up the database (using Docker)
+2. Install all dependencies
+3. Start both frontend and backend
+4. Open your browser to http://localhost:5173
