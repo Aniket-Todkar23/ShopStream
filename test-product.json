@@ -1,0 +1,9 @@
+{
+  "sku": "TEST001",
+  "name": "Test Product",
+  "category": "Electronics",
+  "price": 99.99,
+  "stock": 10,
+  "reorderThreshold": 5,
+  "demandVelocity": 2.5
+}
