@@ -53,7 +53,7 @@ export default function ProductDetail({ id, onBack, onGoSuggestions }) {
       const fallback = r.data.fallbackReason;
 
       if (created > 0) {
-        toast(`✦ AI generated ${created} suggestion${created !== 1 ? "s" : ""}${fallback ? " (rule-based)" : ""}`, "success");
+        toast(`AI generated ${created} suggestion${created !== 1 ? "s" : ""}${fallback ? " (rule-based)" : ""}`, "success");
       } else if (skipped > 0) {
         toast(`${skipped} suggestion${skipped !== 1 ? "s" : ""} already pending — review in AI Suggestions tab`, "success");
       } else {
@@ -82,7 +82,14 @@ export default function ProductDetail({ id, onBack, onGoSuggestions }) {
       <div className="page-wrap">
         <div className="card">
           <div className="empty-state">
-            <div className="empty-icon">📦</div>
+            <div className="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 3H21V7H3V3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 7V21H21V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 14H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
             <div className="empty-title">Product not found</div>
           </div>
         </div>

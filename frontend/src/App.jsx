@@ -5,19 +5,27 @@ import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Suggestions from "./pages/Suggestions";
+import ChatPanel from "./components/ChatPanel";
 import "./index.css";
 
 const TABS = [
-  { id: "dashboard",   label: "Dashboard",       icon: "◈" },
-  { id: "products",    label: "Products",         icon: "▦" },
-  { id: "suggestions", label: "AI Suggestions",   icon: "✦" },
+  { id: "dashboard", label: "Dashboard" },
+  { id: "products", label: "Products" },
+  { id: "suggestions", label: "AI Suggestions" },
 ];
 
 function Navbar({ tab, setTab, pendingCount, apiOk }) {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <div className="brand-icon">⚡</div>
+        <div className="brand-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3H21V7H3V3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M3 7V21H21V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M12 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 14H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
         <span>StockPulse</span>
       </div>
 
@@ -28,7 +36,6 @@ function Navbar({ tab, setTab, pendingCount, apiOk }) {
             className={`nav-tab ${tab === t.id ? "active" : ""}`}
             onClick={() => setTab(t.id)}
           >
-            <span>{t.icon}</span>
             <span className="tab-label">{t.label}</span>
             {t.id === "suggestions" && pendingCount > 0 && (
               <span className="tab-badge">{pendingCount}</span>
@@ -112,6 +119,7 @@ function AppInner() {
         apiOk={apiOk}
       />
       <main>{renderPage()}</main>
+      <ChatPanel />
     </>
   );
 }

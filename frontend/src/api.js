@@ -28,6 +28,9 @@ export const rejectSuggestion   = (id, type) => type === "PRICING"
   : api.patch(`/api/reorder-suggestions/${id}`, { status: "REJECTED" });
 export const getSuggestionStats = ()       => api.get("/api/suggestions/stats/summary");
 
+// Chat
+export const askQuestion       = (question)   => api.post("/api/chat/query", { question });
+
 // Health
 export const getHealth = () => api.get("/health");
 

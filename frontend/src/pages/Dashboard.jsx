@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { getProducts, getSuggestionStats, getSuggestions } from "../api";
 
-function StatCard({ icon, label, value, sub, color }) {
+function StatCard({ label, value, sub, color }) {
   return (
     <div className="stat-card">
-      <div className="stat-icon">{icon}</div>
       <div className="stat-label">{label}</div>
       <div className="stat-value" style={color ? { color } : {}}>{value ?? "—"}</div>
       {sub && <div className="stat-sub">{sub}</div>}
@@ -56,23 +55,20 @@ export default function Dashboard({ onGoProducts, onGoProduct, onGoSuggestions }
 
       {/* KPI Stats */}
       <div className="stats-grid">
-        <StatCard icon="📦" label="Total Products" value={products.length} sub={`${activeProds.length} active`} />
+        <StatCard label="Total Products" value={products.length} sub={`${activeProds.length} active`} />
         <StatCard
-          icon="⚠️"
           label="Low Stock Alerts"
           value={lowStock.length}
           sub="below reorder threshold"
           color={lowStock.length > 0 ? "var(--amber)" : "var(--green)"}
         />
         <StatCard
-          icon="✦"
           label="Pending Suggestions"
           value={stats?.pending ?? 0}
           sub={`${stats?.accepted ?? 0} accepted · ${stats?.rejected ?? 0} rejected`}
           color={stats?.pending > 0 ? "var(--accent)" : undefined}
         />
         <StatCard
-          icon="💰"
           label="Inventory Value"
           value={`$${totalValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`}
           sub="across all products"
@@ -83,11 +79,15 @@ export default function Dashboard({ onGoProducts, onGoProduct, onGoSuggestions }
         {/* Low Stock */}
         <div className="card">
           <div className="card-pad" style={{ borderBottom: "1px solid var(--border)", paddingBottom: 14, marginBottom: 0 }}>
-            <div className="section-title" style={{ marginBottom: 0 }}>⚠ Low Stock Products</div>
+            <div className="section-title" style={{ marginBottom: 0 }}>Low Stock Products</div>
           </div>
           {lowStock.length === 0 ? (
             <div className="empty-state" style={{ padding: "28px 24px" }}>
-              <div className="empty-icon">✓</div>
+              <div className="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 13L9 17L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
               <div className="empty-title">All stocked up</div>
               <div className="empty-sub">No products below reorder threshold</div>
             </div>
@@ -123,14 +123,18 @@ export default function Dashboard({ onGoProducts, onGoProduct, onGoSuggestions }
         {/* Pending Suggestions */}
         <div className="card">
           <div className="card-pad" style={{ borderBottom: "1px solid var(--border)", paddingBottom: 14, marginBottom: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div className="section-title" style={{ marginBottom: 0 }}>✦ Pending AI Suggestions</div>
+            <div className="section-title" style={{ marginBottom: 0 }}>Pending AI Suggestions</div>
             {stats?.pending > 0 && (
               <button className="btn btn-secondary btn-sm" onClick={onGoSuggestions}>View all</button>
             )}
           </div>
           {recent.length === 0 ? (
             <div className="empty-state" style={{ padding: "28px 24px" }}>
-              <div className="empty-icon">✦</div>
+              <div className="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 4V20M12 20L8 16M12 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
               <div className="empty-title">No pending suggestions</div>
               <div className="empty-sub">Trigger AI advisor on any product</div>
             </div>

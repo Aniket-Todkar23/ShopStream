@@ -35,7 +35,7 @@ function CreateModal({ onClose, onCreated, categories }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <span className="modal-title">New Product</span>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose}>×</button>
         </div>
         <form onSubmit={submit}>
           <div className="modal-body">
@@ -219,7 +219,7 @@ export default function Products({ onGoProduct }) {
                     </td>
                     <td>
                       <button className="btn btn-secondary btn-sm" onClick={() => onGoProduct(p.id)}>
-                        View →
+                        View
                       </button>
                     </td>
                   </tr>

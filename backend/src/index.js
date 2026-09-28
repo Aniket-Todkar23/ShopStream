@@ -16,6 +16,7 @@ const productRoutes = require("./routes/products.routes");
 const suggestionRoutes = require("./routes/suggestions.routes");
 const pricingSuggestionRoutes = require("./routes/pricing-suggestions.routes");
 const reorderSuggestionRoutes = require("./routes/reorder-suggestions.routes");
+const chatRoutes = require("./routes/chat.routes");
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/suggestions", suggestionRoutes);
 app.use("/api/pricing-suggestions", pricingSuggestionRoutes);
 app.use("/api/reorder-suggestions", reorderSuggestionRoutes);
+app.use("/api/chat", chatRoutes);
 
 // ─── Swagger Docs ─────────────────────────────────────────────────────────────
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

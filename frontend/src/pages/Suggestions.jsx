@@ -31,7 +31,7 @@ export default function Suggestions({ onRefreshCount }) {
     try {
       if (action === "accept") await acceptSuggestion(id, type);
       else                     await rejectSuggestion(id, type);
-      toast(action === "accept" ? "Suggestion accepted & applied ✓" : "Suggestion rejected", "success");
+      toast(action === "accept" ? "Suggestion accepted & applied" : "Suggestion rejected", "success");
       load();
       onRefreshCount?.();
     } catch (err) {
@@ -49,7 +49,7 @@ export default function Suggestions({ onRefreshCount }) {
           <p className="page-subtitle">Review and act on AI-generated pricing &amp; reorder recommendations</p>
         </div>
         <button className="btn btn-secondary" onClick={load} disabled={loading}>
-          {loading ? <span className="spinner" /> : "↻"} Refresh
+          {loading ? <span className="spinner" /> : <span>🔄</span>} Refresh
         </button>
       </div>
 
@@ -90,7 +90,11 @@ export default function Suggestions({ onRefreshCount }) {
       ) : list.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            <div className="empty-icon">✦</div>
+            <div className="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 4V20M12 20L8 16M12 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
             <div className="empty-title">No suggestions found</div>
             <div className="empty-sub">Go to a product and run the AI Advisor to generate suggestions</div>
           </div>
@@ -206,7 +210,7 @@ function SuggestionCard({ s, acting, act }) {
               onClick={() => act(s.id, "accept", s.type)}
               disabled={!!acting[s.id]}
             >
-              {acting[s.id] === "accept" ? <span className="spinner" /> : "✓"}
+              {acting[s.id] === "accept" && <span className="spinner" />}
               Accept
             </button>
             <button
@@ -214,7 +218,7 @@ function SuggestionCard({ s, acting, act }) {
               onClick={() => act(s.id, "reject", s.type)}
               disabled={!!acting[s.id]}
             >
-              {acting[s.id] === "reject" ? <span className="spinner" /> : "✕"}
+              {acting[s.id] === "reject" && <span className="spinner" />}
               Reject
             </button>
           </div>

@@ -1,0 +1,234 @@
+import { useState, useRef, useEffect } from "react";
+import { askQuestion } from "../api";
+
+function TypingIndicator() {
+  return (
+    <div className="message bot">
+      <div className="message-content">
+        <div className="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Message({ message, isUser }) {
+  return (
+    <div className={`message ${isUser ? "user" : "bot"}`}>
+      <div className="message-content">
+        {message.text}
+        {message.timestamp && (
+          <div className="message-time">
+            {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SuggestedQueries({ onQuerySelect }) {
+  const queries = [
+    "Show me products with low stock",
+    "What are my pending suggestions?",
+    "Tell me about product demand",
+    "Why was I suggested to reorder?",
+    "Which products need price adjustments?"
+  ];
+
+  return (
+    <div className="suggested-queries">
+      <div className="suggested-queries-title">Try asking:</div>
+      <div className="suggested-queries-list">
+        {queries.map((query, index) => (
+          <button 
+            key={index} 
+            className="suggested-query-btn"
+            onClick={() => onQuerySelect(query)}
+          >
+            {query}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function ChatPanel() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      text: "Hello! I'm your ShopStream assistant. Ask me about your inventory, products, or suggestions.",
+      isUser: false,
+      timestamp: new Date()
+    }
+  ]);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+  const chatPanelRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Close chat when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (chatPanelRef.current && !chatPanelRef.current.contains(event.target) && isExpanded) {
+        setIsExpanded(false);
+        setTimeout(() => setIsOpen(false), 300);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isExpanded]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isLoading) return;
+
+    // Add user message
+    const userMessage = {
+      id: Date.now(),
+      text: inputValue,
+      isUser: true,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue("");
+    setIsLoading(true);
+
+    try {
+      // Call API to get response
+      const response = await askQuestion(inputValue);
+      
+      // Add bot response
+      const botMessage = {
+        id: Date.now() + 1,
+        text: response.data.answer || "I couldn't find information about that. Could you rephrase your question?",
+        isUser: false,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      const errorMessage = {
+        id: Date.now() + 1,
+        text: "Sorry, I'm having trouble connecting to the server. Please try again.",
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSuggestedQuery = (query) => {
+    setInputValue(query);
+  };
+
+  const toggleChat = () => {
+    if (!isOpen) {
+      setIsOpen(true);
+      setTimeout(() => setIsExpanded(true), 10);
+    } else {
+      setIsExpanded(false);
+      setTimeout(() => setIsOpen(false), 300);
+    }
+  };
+
+  if (!isOpen) {
+    return (
+      <button 
+        className="chat-toggle-button"
+        onClick={toggleChat}
+        aria-label="Open chat"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+    );
+  }
+
+  return (
+    <div 
+      className={`chat-panel ${isExpanded ? 'expanded' : 'collapsed'}`}
+      ref={chatPanelRef}
+    >
+      <div className="chat-header">
+        <h3>ShopStream Assistant</h3>
+        <div className="chat-controls">
+          <button 
+            className="chat-minimize-btn"
+            onClick={() => toggleChat()}
+            aria-label="Minimize chat"
+          >
+            −
+          </button>
+          <button 
+            className="chat-close-btn"
+            onClick={() => toggleChat()}
+            aria-label="Close chat"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+      
+      {isExpanded && (
+        <>
+          <div className="chat-messages">
+            {messages.map((message) => (
+              <Message 
+                key={message.id} 
+                message={message} 
+                isUser={message.isUser} 
+              />
+            ))}
+            
+            {isLoading && <TypingIndicator />}
+            <div ref={messagesEndRef} />
+          </div>
+          
+          {!messages.some(m => m.isUser) && (
+            <SuggestedQueries onQuerySelect={handleSuggestedQuery} />
+          )}
+          
+          <form className="chat-input-form" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Ask about products, stock, or suggestions..."
+              disabled={isLoading}
+              className="chat-input"
+            />
+            <button 
+              type="submit" 
+              disabled={!inputValue.trim() || isLoading}
+              className="chat-send-btn"
+            >
+              Send
+            </button>
+          </form>
+        </>
+      )}
+    </div>
+  );
+}
