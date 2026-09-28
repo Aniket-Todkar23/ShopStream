@@ -178,12 +178,8 @@ Complete API documentation is available at: http://localhost:4000/api/docs
 
 ---
 
-## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
 
 <p align="center">
-  Made with ❤️ for smarter retail management
+  Made For Zycus Hackathon
 </p>
