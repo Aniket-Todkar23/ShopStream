@@ -14,10 +14,12 @@ model Product {
   name             String
   category         String
   price            Float
+  costPrice        Float?   // Sprint 2: Margin floors
   stock            Int
   reorderThreshold Int
   demandVelocity   Float    @default(0)
   status           String   @default("ACTIVE") // ACTIVE | DISCONTINUED | OUT_OF_STOCK
+  supplierId       String?  // Sprint 2: Supplier catalogs
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

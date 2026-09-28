@@ -1,7 +1,9 @@
-﻿// src/services/ai.service.js
+// src/services/ai.service.js
 /**
- * AI Advisor service using LiteLLM → qwen-cursor.
- * Falls back to rule-based logic on timeout, error, quota exceeded, or malformed response.
+ * AI Advisor service.
+ * Primary: Gemini API (gemini-1.5-flash)
+ * Fallback 1: LiteLLM
+ * Fallback 2: Rule-based logic
  */
 
 const axios = require("axios");
@@ -27,11 +29,27 @@ Response schema:
   }
 }`;
 
-/**
- * Build the user prompt for the AI advisor.
- */
-function buildUserPrompt(product, categoryProducts, triggerReason) {
-  const categoryAvg = rulesService.getCategoryAverageDemand(categoryProducts);
+function buildInventoryLowPrompt(product, categoryAvg) {
+  return `Product Context:
+- Name: ${product.name}
+- SKU: ${product.sku}
+- Category: ${product.category}
+- Current Price: $${product.price}
+- Current Stock: ${product.stock} units
+- Reorder Threshold: ${product.reorderThreshold} units
+- Demand Velocity: ${product.demandVelocity} units/day
+
+Trigger: INVENTORY_LOW
+The stock level has dropped below the reorder threshold. 
+
+Your merchandising objective:
+1. Determine if a price increase is needed to protect remaining inventory and maximize margin on scarce goods, or if price should hold.
+2. Calculate the optimal reorder quantity to restore buffer stock based on demand velocity. 
+
+Analyze the situation and recommend pricing and reorder actions.`;
+}
+
+function buildDemandSpikePrompt(product, categoryAvg) {
   return `Product Context:
 - Name: ${product.name}
 - SKU: ${product.sku}
@@ -41,7 +59,27 @@ function buildUserPrompt(product, categoryProducts, triggerReason) {
 - Reorder Threshold: ${product.reorderThreshold} units
 - Demand Velocity: ${product.demandVelocity} units/day
 - Category Avg Demand: ${categoryAvg.toFixed(2)} units/day
-- Status: ${product.status}
+
+Trigger: DEMAND_SPIKE
+This product is experiencing unusually high demand compared to its category average.
+
+Your merchandising objective:
+1. Capitalize on the spike with a modest price increase to maximize yield, unless stock is so high that clearance is a better strategy.
+2. Consider if the current demand trajectory requires an early or larger reorder to prevent an impending stockout.
+
+Analyze the situation and recommend pricing and reorder actions.`;
+}
+
+function buildManualPrompt(product, categoryAvg, triggerReason) {
+  return `Product Context:
+- Name: ${product.name}
+- SKU: ${product.sku}
+- Category: ${product.category}
+- Current Price: $${product.price}
+- Current Stock: ${product.stock} units
+- Reorder Threshold: ${product.reorderThreshold} units
+- Demand Velocity: ${product.demandVelocity} units/day
+- Category Avg Demand: ${categoryAvg.toFixed(2)} units/day
 
 Trigger: ${triggerReason}
 
@@ -55,7 +93,6 @@ Analyze and recommend. Consider the rules as a baseline but apply nuanced judgme
 
 /**
  * Parse and validate AI response JSON.
- * Returns null if invalid.
  */
 function parseAIResponse(rawContent) {
   try {
@@ -87,49 +124,93 @@ function parseAIResponse(rawContent) {
 }
 
 /**
- * Call LiteLLM to get AI recommendations.
- * Falls back to rule-based on any failure.
- *
- * @param {Object} product - Product data
- * @param {Array} categoryProducts - Products in same category
- * @param {string} triggerReason - Why this was triggered
- * @returns {{ pricing: Object, reorder: Object, source: string }}
+ * Make API call to Gemini
  */
+async function callGemini(systemPrompt, userPrompt) {
+  if (!process.env.GEMINI_API_KEY) throw new Error("No Gemini API key");
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+  
+  const response = await axios.post(url, {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ parts: [{ text: userPrompt }] }],
+    generationConfig: { temperature: 0.3 }
+  }, { timeout: 15000 });
+  
+  const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error("Empty Gemini response");
+  return text;
+}
+
+/**
+ * Make API call to LiteLLM
+ */
+async function callLiteLLM(systemPrompt, userPrompt) {
+  const response = await axios.post(
+    `${config.ai.baseUrl}/chat/completions`,
+    {
+      model: config.ai.model,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.3,
+      max_tokens: 500,
+    },
+    {
+      timeout: config.ai.timeoutMs,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.ai.apiKey}`,
+        product: config.ai.productHeader,
+      },
+    }
+  );
+  const text = response.data?.choices?.[0]?.message?.content;
+  if (!text) throw new Error("Empty LiteLLM response");
+  return text;
+}
+
+async function callLLM(systemPrompt, userPrompt) {
+  let rawContent;
+  let source = "AI_GEMINI";
+  
+  try {
+    rawContent = await callGemini(systemPrompt, userPrompt);
+  } catch (err) {
+    console.warn(`[AI Advisor] Gemini failed (${err.message}), falling back to LiteLLM`);
+    rawContent = await callLiteLLM(systemPrompt, userPrompt);
+    source = "AI_LITELLM";
+  }
+  
+  return { rawContent, source };
+}
+
 async function getAIRecommendations(product, categoryProducts, triggerReason) {
   try {
-    const userPrompt = buildUserPrompt(product, categoryProducts, triggerReason);
+    const categoryAvg = rulesService.getCategoryAverageDemand(categoryProducts);
+    
+    let userPrompt;
+    if (triggerReason === "INVENTORY_LOW") {
+      userPrompt = buildInventoryLowPrompt(product, categoryAvg);
+    } else if (triggerReason === "DEMAND_SPIKE") {
+      userPrompt = buildDemandSpikePrompt(product, categoryAvg);
+    } else {
+      userPrompt = buildManualPrompt(product, categoryAvg, triggerReason);
+    }
 
-    const response = await axios.post(
-      `${config.ai.baseUrl}/chat/completions`,
-      {
-        model: config.ai.model,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.3,
-        max_tokens: 500,
-      },
-      {
-        timeout: config.ai.timeoutMs,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${config.ai.apiKey}`,
-          product: config.ai.productHeader,
-        },
-      }
-    );
-
-    const rawContent = response.data?.choices?.[0]?.message?.content;
-    if (!rawContent) throw new Error("Empty AI response");
-
+    const { rawContent, source } = await callLLM(SYSTEM_PROMPT, userPrompt);
+    
     const parsed = parseAIResponse(rawContent);
     if (!parsed) throw new Error("Malformed AI response JSON");
 
+    // Ensure reorder quantity is a positive integer
+    if (parsed.reorder.recommendedQty < 1) parsed.reorder.recommendedQty = 1;
+    parsed.reorder.recommendedQty = Math.round(parsed.reorder.recommendedQty);
+
     return {
-      pricing: { ...parsed.pricing, source: "AI" },
-      reorder: { ...parsed.reorder, source: "AI" },
-      source: "AI",
+      pricing: { ...parsed.pricing, source },
+      reorder: { ...parsed.reorder, source },
+      source,
     };
   } catch (err) {
     const reason = err.code === "ECONNABORTED"

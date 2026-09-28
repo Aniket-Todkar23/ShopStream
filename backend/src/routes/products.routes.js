@@ -1,4 +1,4 @@
-﻿// src/routes/products.routes.js
+// src/routes/products.routes.js
 const express = require("express");
 const router = express.Router();
 const prisma = require("../config/prisma");
@@ -264,6 +264,116 @@ router.get("/:id/price-history", async (req, res, next) => {
       orderBy: { changedAt: "desc" },
     });
     res.json(history);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * @openapi
+ * /products/{id}/orders:
+ *   post:
+ *     tags: [Products]
+ *     summary: Simulate a sale
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quantity:
+ *                 type: integer
+ *                 default: 1
+ *     responses:
+ *       200:
+ *         description: Updated product
+ */
+router.post("/:id/orders", async (req, res, next) => {
+  try {
+    const { quantity } = req.body;
+    const qty = quantity || 1;
+    const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+    if (!product) return res.status(404).json({ error: "Product not found" });
+
+    const updated = await prisma.product.update({
+      where: { id: req.params.id },
+      data: {
+        stock: Math.max(0, product.stock - qty),
+        demandVelocity: parseFloat((product.demandVelocity + (qty * 0.1)).toFixed(2))
+      }
+    });
+
+    if (updated.stock <= updated.reorderThreshold) {
+      setImmediate(() => advisorService.handleProductEvent(updated.id, "INVENTORY_LOW"));
+    } else {
+      const categoryProducts = await prisma.product.findMany({
+        where: { category: product.category, status: "ACTIVE" }
+      });
+      const avg = categoryProducts.reduce((sum, p) => sum + p.demandVelocity, 0) / categoryProducts.length;
+      if (updated.demandVelocity > avg * 2) {
+        setImmediate(() => advisorService.handleProductEvent(updated.id, "DEMAND_SPIKE"));
+      }
+    }
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * @openapi
+ * /products/{id}/suggest-pricing:
+ *   post:
+ *     tags: [AI]
+ *     summary: On-demand pricing suggestion
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Generated suggestions (filtered to pricing)
+ */
+router.post("/:id/suggest-pricing", async (req, res, next) => {
+  try {
+    const result = await advisorService.generateSuggestions(req.params.id, "MANUAL");
+    const filtered = result.suggestions.filter(s => s.type === "PRICING");
+    res.json({ suggestions: filtered, skippedDuplicates: result.skippedDuplicates, fallbackReason: result.fallbackReason });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * @openapi
+ * /products/{id}/suggest-reorder:
+ *   post:
+ *     tags: [AI]
+ *     summary: On-demand reorder suggestion
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Generated suggestions (filtered to reorder)
+ */
+router.post("/:id/suggest-reorder", async (req, res, next) => {
+  try {
+    const result = await advisorService.generateSuggestions(req.params.id, "MANUAL");
+    const filtered = result.suggestions.filter(s => s.type === "REORDER");
+    res.json({ suggestions: filtered, skippedDuplicates: result.skippedDuplicates, fallbackReason: result.fallbackReason });
   } catch (err) {
     next(err);
   }
