@@ -1,0 +1,19 @@
+{
+  "name": "shopstream",
+  "version": "1.0.0",
+  "description": "AI-powered inventory and pricing management system",
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js",
+    "start:dev": "node start.js --dev",
+    "start:backend": "cd backend && npm run dev",
+    "start:frontend": "cd frontend && npm run dev"
+  },
+  "keywords": ["inventory", "pricing", "ai", "commerce"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "dotenv": "^16.0.3"
+  }
+}

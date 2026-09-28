@@ -138,6 +138,103 @@ Get statistics on suggestions
 ### Prerequisites
 
 - Node.js >= 18.x
+- npm or yarn
+- Git
+- Docker (recommended for database, but optional)
+
+### Quick Start (Recommended)
+
+Use the provided startup scripts to launch the entire system with one command:
+
+**Windows:**
+```bash
+start-system.bat
+```
+
+**Mac/Linux:**
+```bash
+chmod +x start-system.sh
+./start-system.sh
+```
+
+**Cross-platform (requires Node.js):**
+```bash
+npm start
+```
+
+### Manual Setup
+
+If you prefer to start services manually:
+
+#### Backend Setup
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp env.example .env
+   # Edit .env with your configuration
+   ```
+
+4. Run database migrations:
+   ```bash
+   npm run db:migrate
+   ```
+
+5. Seed the database (optional):
+   ```bash
+   npm run db:seed
+   ```
+
+6. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+#### Frontend Setup
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   # The postinstall script will copy .env.example to .env automatically
+   # Edit .env with your configuration if needed
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Database Setup
+
+The application requires PostgreSQL. You can:
+
+1. **Use Docker (recommended)**: The startup scripts will automatically start a PostgreSQL container
+2. **Use existing PostgreSQL installation**: Configure the DATABASE_URL in backend/.env
+3. **Use cloud PostgreSQL**: Configure the DATABASE_URL in backend/.env
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js >= 18.x
 - PostgreSQL >= 13.x
 - npm or yarn
 - Git
