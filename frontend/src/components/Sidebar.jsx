@@ -40,7 +40,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <div className="status-dot">API · localhost:4000</div>
+        <div className="status-dot">API · {import.meta.env.VITE_API_URL || 'localhost:4000'}</div>
       </div>
     </aside>
   );

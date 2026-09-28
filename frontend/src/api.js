@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// baseURL is intentionally empty — Vite proxy forwards /api/* to localhost:4000
+// baseURL is intentionally empty — Vite proxy forwards /api/* to the target defined in vite.config.js
 const api = axios.create({
   baseURL: "",
   timeout: 15000,

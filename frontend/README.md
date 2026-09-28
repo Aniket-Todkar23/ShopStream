@@ -1,6 +1,45 @@
-# React + Vite
+# StockPulse Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This is the frontend application for StockPulse, an AI-powered inventory and pricing management system built with React and Vite.
+
+## Environment Variables
+
+Create a `.env` file in the frontend directory with the following variables:
+
+```
+VITE_API_URL=http://localhost:4000
+```
+
+You can copy the `.env.example` file to `.env` and modify as needed:
+
+```bash
+cp .env.example .env
+```
+
+## Development
+
+To run the development server:
+
+```bash
+npm install
+npm run dev
+```
+
+The application will be available at http://localhost:5173
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+The build output will be in the `dist` folder.
+
+## Linting
+
+```bash
+npm run lint
+```
 
 Currently, two official plugins are available:
 
